@@ -19,7 +19,7 @@ System_Boundary(future_20_system, "Система Будущее 2.0") {
     Container(equipment_domain, "Домен медоборудования", "Java", "Управление данными медицинского оборудования")
     
     ' Data Lakehouse
-    ContainerDb(data_lakehouse, "Data Lakehouse", "+ Apache Iceberg + MinIO", "Единое хранилище структурированных и неструктурированных данных")
+    ContainerDb(data_lakehouse, "Data Lakehouse", "Dreamio + Apache Iceberg + MinIO", "Единое хранилище структурированных и неструктурированных данных")
     Container(metadata_catalog, "Каталог метаданных", "Apache Nessie", "Управление версиями данных и метаданными")
     
     ' Платформа самообслуживания
