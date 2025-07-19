@@ -1,0 +1,74 @@
+@startuml C4_Container_Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров - Архитектура данных "Будущее 2.0" (целевое состояние через год)
+
+Person(medical_staff, "Медицинский персонал", "Врачи, медсестры")
+Person(analysts, "Аналитики", "Бизнес-аналитики, дата-сайентисты")
+Person(finance_users, "Финансовые пользователи", "Сотрудники финтех-сервисов")
+Person(admin, "Администраторы", "ИТ-администраторы платформы")
+
+System_Boundary(future_20_system, "Система Будущее 2.0") {
+    
+    ' Доменные системы
+    Container(medical_domain, "Медицинский домен", "Python, Java", "Управление медицинскими данными и ИИ-сервисами")
+    Container(fintech_domain, "Финтех домен", "Golang, Java", "Банковские и финансовые сервисы")
+    Container(pharma_domain, "Фармацевтический домен", "Java", "Управление фармацевтическими данными")
+    Container(equipment_domain, "Домен медоборудования", "Java", "Управление данными медицинского оборудования")
+    
+    ' Data Lakehouse
+    ContainerDb(data_lakehouse, "Data Lakehouse", "Dreamio + Apache Iceberg + MinIO", "Единое хранилище структурированных и неструктурированных данных")
+    Container(metadata_catalog, "Каталог метаданных", "Apache Nessie", "Управление версиями данных и метаданными")
+    
+    ' Платформа самообслуживания
+    Container(self_service_portal, "Портал самообслуживания", "React, TypeScript", "Витрина данных для создания отчетов")
+    Container(data_governance, "Управление данными", "DataHub", "Каталогизация, линиидж, качество данных")
+    
+    ' Слой интеграции
+    Container(api_gateway, "API Gateway", "Kong Gateway", "Единая точка входа")
+    Container(event_streaming, "Потоковая обработка", "Apache Kafka", "Обработка событий в реальном времени")
+    Container(etl_pipeline, "ETL/ELT пайплайны", "Apache Airflow", "Пакетная обработка данных")
+    
+    ' Аналитические сервисы
+    Container(analytics_engine, "Аналитический движок", "Apache Spark", "Обработка больших данных")
+    Container(ml_platform, "ML платформа", "MLflow, Python", "Машинное обучение и ИИ")
+    Container(bi_layer, "BI слой", "Apache Superset", "Визуализация и отчетность")
+}
+
+' Внешние системы
+System_Ext(legacy_dwh, "Legacy DWH", "Существующее хранилище данных (MS SQL Server 2008)")
+System_Ext(external_partners, "Внешние партнеры", "Поставщики данных, регуляторы")
+
+' Взаимодействия пользователей
+Rel(medical_staff, medical_domain, "Использует", "HTTPS")
+Rel(finance_users, fintech_domain, "Использует", "HTTPS")
+Rel(analysts, self_service_portal, "Создает отчеты", "HTTPS")
+Rel(analysts, bi_layer, "Анализирует данные", "HTTPS")
+Rel(analysts, data_governance, "Уточняет метаданные", "HTTPS")
+Rel(admin, data_governance, "Управляет", "HTTPS")
+
+' Внутренние взаимодействия
+Rel(medical_domain, api_gateway, "Публикует данные", "REST API")
+Rel(fintech_domain, api_gateway, "Публикует данные", "REST API")
+Rel(pharma_domain, api_gateway, "Публикует данные", "REST API")
+Rel(equipment_domain, api_gateway, "Публикует данные", "REST API")
+
+Rel(api_gateway, event_streaming, "Отправляет события", "Kafka")
+Rel(event_streaming, etl_pipeline, "Триггерит обработку", "Event")
+Rel(etl_pipeline, data_lakehouse, "Загружает данные", "S3 API")
+
+Rel(data_lakehouse, metadata_catalog, "Управляется", "REST API")
+Rel(metadata_catalog, data_governance, "Метаданные", "API")
+
+Rel(self_service_portal, analytics_engine, "Запрашивает данные", "SQL")
+Rel(analytics_engine, data_lakehouse, "Читает данные", "Iceberg API")
+Rel(bi_layer, analytics_engine, "Получает данные", "JDBC")
+Rel(ml_platform, data_lakehouse, "Обучает модели", "Spark API")
+
+' Миграция с legacy
+Rel(legacy_dwh, etl_pipeline, "Миграция данных", "JDBC")
+Rel(external_partners, api_gateway, "Предоставляет данные", "REST API")
+
+@enduml
